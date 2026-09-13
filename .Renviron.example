@@ -1,0 +1,3 @@
+# Copy to ~/.Renviron and restart R.
+# Request a key at https://harvardartmuseums.org/collections/api
+HAM_APIKEY=your-key-here

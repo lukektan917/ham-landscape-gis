@@ -1,0 +1,21 @@
+# R
+.Rhistory
+.RData
+.Rproj.user/
+.Renviron
+*.Rproj
+
+# macOS
+.DS_Store
+Icon?
+
+# Office lock files
+~$*
+
+# QGIS
+*.qgz~
+*.gpkg-shm
+*.gpkg-wal
+
+# Large source assets kept outside the repo
+*.pdf
