@@ -97,7 +97,7 @@ distance across those lines is 267 km.
 
 Object and artist metadata is © President and Fellows of Harvard College,
 retrieved through the Harvard Art Museums API. Geocodes are derived from
-OpenStreetMap (ODbL). The code is MIT-licensed.
+OpenStreetMap (ODbL).
 
 ### Known gaps
 
@@ -110,3 +110,10 @@ OpenStreetMap (ODbL). The code is MIT-licensed.
   activity period rather than birth–death; treat their `birth_year` accordingly.
 - Nominatim resolves place names as written, so historical or superseded names
   may land on the modern settlement of the same name.
+
+## Licence
+
+Copyright © 2026 Luke Tan. All rights reserved. This repository is published for
+reference and review only — no permission is granted to use, copy, modify or
+redistribute it. See [LICENSE](LICENSE), and get in touch if you'd like to use
+any of it.
