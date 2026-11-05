@@ -53,6 +53,49 @@ parse_years <- function(displaydate) {
   empty
 }
 
+# ── Alternative titles ────────────────────────────────────────────────────────
+# HAM's `titles` array holds every name the museum carries for an object, each
+# typed: "Title", "Alternate Title", "Original Language Title", "Former Title".
+# These are not noise — the original-language title is usually the artist's own
+# wording, and a former title records what the museum used to call the work.
+# Both matter to a project about how titles name or withhold a place.
+#
+# The primary title is dropped (it is already the `title` column) and the rest
+# are kept in displayorder. Titles are separated by " | ", not "; ", because a
+# single title may itself contain a semicolon — e.g. 1962.42's alternative
+# title is "La Montagne Sacrée; The Sacred Mountain". `alt_title_type` is a
+# parallel list, so splitting both on " | " lines the types up with the titles.
+alt_titles <- function(titles, primary) {
+  empty <- list(alt_title = NA_character_, alt_title_type = NA_character_)
+  if (is.null(titles) || length(titles) == 0) return(empty)
+
+  tt  <- map_chr(titles, ~ .x$title     %||% NA_character_)
+  typ <- map_chr(titles, ~ .x$titletype %||% NA_character_)
+  ord <- map_dbl(titles, ~ suppressWarnings(as.numeric(.x$displayorder %||% NA_real_)))
+
+  keep <- !is.na(tt) & nzchar(trimws(tt))
+  tt <- tt[keep]; typ <- typ[keep]; ord <- ord[keep]
+
+  # Drop the primary title once. Some objects carry two rows typed "Title"
+  # (2023.252 is both "Forest Clearing" and "Landscape (George Sand's Garden
+  # at Nohant)"), so only the first exact match is removed and the co-equal
+  # second title survives as an alternative.
+  if (!is.na(primary)) {
+    hit <- which(tt == primary)
+    if (length(hit) > 0) {
+      i <- hit[1]
+      tt <- tt[-i]; typ <- typ[-i]; ord <- ord[-i]
+    }
+  }
+  if (length(tt) == 0) return(empty)
+
+  o <- order(ord, na.last = TRUE)
+  list(
+    alt_title      = paste(tt[o], collapse = " | "),
+    alt_title_type = paste(replace_na(typ[o], "Unspecified"), collapse = " | ")
+  )
+}
+
 # ── People data frame (one row per person–object link) ────────────────────────
 parse_people_df <- function(objnum, people) {
   if (is.null(people) || length(people) == 0) {
@@ -116,6 +159,8 @@ na_object_row <- function(objnum, status) {
   tibble(
     objectnumber       = objnum,
     title              = NA_character_,
+    alt_title          = NA_character_,
+    alt_title_type     = NA_character_,
     people_names       = NA_character_,
     people_displaydate = NA_character_,
     people_culture     = NA_character_,
@@ -161,6 +206,7 @@ fetch_one <- function(objnum) {
     r  <- dat$records[[1]]
     p  <- r$people        # may be NULL
     ps <- people_summary(p)
+    at <- alt_titles(r$titles, r$title %||% NA_character_)
     
     # `culture` can arrive as a plain string or as a list with $name elements
     culture_val <- if (is.character(r$culture)) {
@@ -174,6 +220,8 @@ fetch_one <- function(objnum) {
     obj <- tibble(
       objectnumber       = objnum,
       title              = r$title           %||% NA_character_,
+      alt_title          = at$alt_title,
+      alt_title_type     = at$alt_title_type,
       people_names       = ps$people_names,
       people_displaydate = ps$people_displaydate,
       people_culture     = ps$people_culture,
@@ -225,6 +273,7 @@ cat(sprintf("  Errors        : %d\n",   sum(startsWith(objects_df$status, "ERROR
 cat(sprintf("People rows     : %d\n",   nrow(people_df)))
 cat(sprintf("Unique artists  : %d\n",   n_distinct(na.omit(people_df$personid))))
 cat(sprintf("With birthplace : %d\n",   sum(!is.na(people_df$birthplace))))
+cat(sprintf("With alt. title : %d\n",   sum(!is.na(objects_df$alt_title))))
 
 # ── Save ──────────────────────────────────────────────────────────────────────
 dir.create(OUT_DIR, showWarnings = FALSE, recursive = TRUE)

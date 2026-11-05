@@ -14,7 +14,12 @@
 #
 #   basis – what the placement rests on, so a reader can weigh it
 #     title          – the HAM title names the place
-#     alt_title      – a HAM alternative title names it (see `titles` in the API)
+#     alt_title      – a HAM alternative title names it. The alternative titles
+#                      themselves ride along in the `alt_title` /
+#                      `alt_title_type` columns from 01_fetch_ham.R, so a
+#                      reader can see the evidence rather than take it on
+#                      trust — and so can see the alternative titles carried
+#                      by objects placed on some other basis.
 #     description    – the HAM description or curatorial note names it
 #     creation_place – the HAM `places` record names it
 #     biography      – the artist's documented location at the work's date
@@ -73,7 +78,7 @@ depicted_coords <- tribble(
   "2026.65",   "View of the Cataract of the Mothvaye, Merionethshire, North Wales",       "Maesglase Waterfall, Merionethshire, North Wales",             52.714,    -3.725,  0L, "title",
   "1943.387",  "Race Course at Longchamp; verso: Section of grandstand area",             "Hippodrome de Longchamp, Paris, France",                       48.855,     2.234,  0L, "title",
   "1943.393",  "Boats (Entry of the Midina to the Isle of Wight)",                        "River Medina, Cowes, Isle of Wight, England",                  50.758,    -1.292,  0L, "title",
-  "1999.12",   "Mountainous Landscape with a Volcano",                                    "Mount Vesuvius, near Naples, Italy",                           40.821,    14.427,  1L, "alt_title",
+  "1999.12",   "Mount Vesuvius",                                                          "Mount Vesuvius, near Naples, Italy",                           40.821,    14.427,  1L, "title",
   "2001.77",   "Fountain Near the Hill of Montmartre",                                    "Butte Montmartre area, Paris, France",                         48.887,     2.343,  1L, "title",
   "2007.139",  "Entrance to the Baumannshöhle in the Harz Mountains",                     "Baumannshöhle, Rübeland, Harz Mountains, Germany",             51.755,    10.843,  1L, "title",
   "1943.281",  "Honfleur Harbor",                                                         "Honfleur harbour, Calvados, Normandy, France",                 49.419,     0.232,  1L, "title",
@@ -196,12 +201,25 @@ if (nrow(overgraded) > 0)
   warning("Inferred placements graded above specificity 1: ",
           paste(overgraded$objectnumber, collapse = ", "))
 
+# A row graded `alt_title` must actually have an alternative title in the
+# museum record. This catches the case where HAM promotes a former alternative
+# to the primary title — 1999.12 was "Mountainous Landscape with a Volcano"
+# with "Mount Vesuvius" as the alternative, and is now the other way round.
+alt_basis <- objects_with_coords |>
+  filter(basis == "alt_title", is.na(alt_title))
+if (nrow(alt_basis) > 0)
+  warning("Graded `alt_title` but HAM lists no alternative title: ",
+          paste(alt_basis$objectnumber, collapse = ", "))
+
 cat(sprintf("Objects            : %d\n", nrow(objects_with_coords)))
 cat(sprintf("  with coordinates : %d\n", sum(!is.na(objects_with_coords$latitude))))
 cat(sprintf("  region-level only: %d\n", nrow(region_coords)))
 cat(sprintf("  researched only  : %d\n", nrow(candidate_coords)))
 cat("\nBy basis:\n")
 depicted_coords |> count(basis, sort = TRUE) |> pwalk(\(basis, n) cat(sprintf("  %-15s %d\n", basis, n)))
+cat(sprintf("\nPlaced objects with an alternative title: %d\n",
+            sum(!is.na(objects_with_coords$alt_title) &
+                !is.na(objects_with_coords$latitude))))
 cat("\nBy specificity:\n")
 depicted_coords |> count(specificity) |> pwalk(\(specificity, n) cat(sprintf("  %-15d %d\n", specificity, n)))
 

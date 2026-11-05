@@ -34,8 +34,8 @@ artists <- people |>
 flow_flat <- artists |>
   left_join(
     select(depicted, objectnumber, depicted_loc, latitude, longitude,
-           specificity, basis, title, dated, datebegin, dateend, medium,
-           century, primaryimageurl, url),
+           specificity, basis, title, alt_title, alt_title_type, dated,
+           datebegin, dateend, medium, century, primaryimageurl, url),
     by = "objectnumber"
   ) |>
   rename(dep_lat = latitude, dep_lon = longitude) |>
@@ -60,8 +60,11 @@ flow_flat <- flow_flat |>
   ungroup()
 
 # ── LAYER 1: object points (depicted location) ────────────────────────────────
+# `alt_title` / `alt_title_type` ride on this layer only. The line layer is
+# about the journey between two places, not about what the object is called.
 objects_sf <- flow_flat |>
-  select(objectnumber, title, artist_name = name, nationality,
+  select(objectnumber, title, alt_title, alt_title_type,
+         artist_name = name, nationality,
          culture, dated, datebegin, dateend, century, medium,
          depicted_loc, specificity, basis, dep_lat, dep_lon, distance_km,
          primaryimageurl, url) |>
@@ -104,6 +107,8 @@ cat(sprintf("Flow lines       : %d\n", nrow(flow_sf)))
 cat(sprintf("Median distance  : %.0f km\n", median(flow_flat$distance_km, na.rm = TRUE)))
 cat(sprintf("  of which from a supplied birthplace: %d\n",
             sum(birthplaces_sf$birthplace_source == "supplement", na.rm = TRUE)))
+cat(sprintf("With alt. title  : %d\n",
+            sum(!is.na(objects_sf$alt_title))))
 cat("\nPlaced objects by basis:\n")
 objects_sf |> st_drop_geometry() |> count(basis, sort = TRUE) |>
   pwalk(\(basis, n) cat(sprintf("  %-15s %d\n", basis, n)))

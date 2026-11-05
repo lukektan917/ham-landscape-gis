@@ -16,10 +16,15 @@ OUT_PEOPLE  <- file.path(OUT_DIR, "ham_people.csv")   # one row per person–obj
 # ── Fields requested from the /object endpoint ───────────────────────────────
 # `people` returns: name, role, displayorder, personid, displaydate,
 #                   culture, birthplace, deathplace, prefix, displayname
+# `titles` returns every name HAM holds for the object, each typed:
+#                   "Title", "Alternate Title", "Original Language Title",
+#                   "Former Title". 01_fetch_ham.R splits these into
+#                   `title` (primary) and `alt_title` / `alt_title_type`.
 # `primaryimageurl` is included for QGIS popup balloons
 HAM_FIELDS <- paste(c(
   "objectnumber",
   "title",
+  "titles",
   "people",
   "primaryimageurl",
   "url",

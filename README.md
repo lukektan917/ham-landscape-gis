@@ -83,8 +83,8 @@ the title, the image and curatorial notes, and each one is graded on two axes.
 
 | `basis` | Meaning | Count |
 | --- | --- | --- |
-| `title` | the HAM title names the place | 62 |
-| `alt_title` | a HAM alternative title names it | 6 |
+| `title` | the HAM title names the place | 63 |
+| `alt_title` | a HAM alternative title names it | 5 |
 | `description` | the HAM description names it | 1 |
 | `creation_place` | the HAM `places` record names it | 1 |
 | `biography` | the artist's documented location at the work's date | 6 |
@@ -113,6 +113,51 @@ Median birthplace-to-subject distance across those lines is 312 km.
 `objects_points` and `flow_lines` both carry `specificity` and `basis`, so the
 map can filter or style by how firm a placement is.
 
+### Alternative titles
+
+A title is not a neutral label here — it is the main thing that does or doesn't
+disclose a place, so the names the museum holds beyond the primary one are
+carried as data rather than left in the API. `01_fetch_ham.R` splits HAM's
+`titles` array into `title` (the primary) and two parallel columns on
+`objects_points`:
+
+| Column | Holds |
+| --- | --- |
+| `alt_title` | every other name HAM carries, `" \| "`-separated |
+| `alt_title_type` | the matching HAM type for each, in the same order |
+
+Splitting both on `" | "` lines the types up with the titles. The separator is
+not `"; "` because a single title may contain a semicolon — 1962.42's
+alternative title is `La Montagne Sacrée; The Sacred Mountain`.
+
+44 of the 153 objects carry at least one, and 24 of the 77 placed ones do. By
+type, across those 24:
+
+| `alt_title_type` | Count | What it is |
+| --- | --- | --- |
+| `Original Language Title` | 13 | usually the artist's own wording |
+| `Alternate Title` | 7 | a curatorial variant |
+| `Former Title` | 5 | what the museum used to call the work |
+| `Title` | 2 | a co-equal second primary title |
+
+These are worth showing because they often carry the place the primary title
+withholds, and sometimes the reverse. 1999.247 is catalogued both as *View Near
+Nemi* and as *Italian Landscape* — the same sheet named once precisely and once
+vaguely. 1943.515 is *Peasant of the Camargue*, but its alternative title
+*Portrait of Patience Escalier* is the reason this project flags it as a
+portrait being mapped as a view (see Known gaps). 2023.252 carries two titles
+both typed `Title`, so *Landscape (George Sand's Garden at Nohant)* is not a
+variant but a second primary name, and it is the one that locates the work.
+
+An object's primary title can change. 1999.12 was *Mountainous Landscape with a
+Volcano* with *Mount Vesuvius* as the alternative, and HAM has since swapped
+them — so its `basis` is now `title`, and the old name survives as a
+`Former Title`. `03_object_coords.R` warns if any row graded `alt_title` has no
+alternative title left in the record, which is how that was caught.
+
+The alternative titles are **not** carried on `flow_lines`: that layer is about
+the journey between two places, not about what the object is called.
+
 ### Supplied birthplaces
 
 The API returns no birthplace for 7 of the artists, which silently cost the map
@@ -127,9 +172,9 @@ for one the museum recorded.
 
 | File | Rows | Notes |
 | --- | --- | --- |
-| `data/ham_objects.csv` | 153 | one row per object; 148 resolved, 5 `NOT_FOUND` |
+| `data/ham_objects.csv` | 153 | one row per object; 148 resolved, 5 `NOT_FOUND`; 44 carry an `alt_title` |
 | `data/ham_people.csv` | 154 | one row per person–object link, with parsed birth/death years |
-| `data/objects_with_coords.csv` | 153 | objects plus depicted location, `specificity` and `basis` |
+| `data/objects_with_coords.csv` | 153 | objects plus depicted location, `specificity`, `basis` and alternative titles |
 | `data/birthplace_coords.csv` | 72 | geocoded via OSM Nominatim; 72 resolved |
 | `data/deathplace_coords.csv` | 58 | geocoded via OSM Nominatim; 58 resolved |
 | `data/geojson/` | — | the three layers, EPSG:4326 |
@@ -152,9 +197,10 @@ OpenStreetMap (ODbL).
 - Nominatim resolves place names as written, so historical or superseded names
   may land on the modern settlement of the same name. `place_overrides` in
   `02_geocode_places.R` rewrites the eleven HAM strings it could not parse at all.
-- `1943.515` ("Peasant of the Camargue", HAM's alternative title: "Portrait of
-  Patience Escalier") is a portrait, not a view. It is placed in the Camargue on
-  the sitter's identity rather than on anything the sheet depicts.
+- `1943.515` ("Peasant of the Camargue") is a portrait, not a view. It is placed
+  in the Camargue on the sitter's identity rather than on anything the sheet
+  depicts. Its alternative title "Portrait of Patience Escalier" now travels
+  with the point, so the map discloses this rather than burying it here.
 - `8.2023` is a bound album of 30 drawings spanning Hampshire, Sussex and Kent.
   It carries one point, which sits in the Solent and stands for the whole album.
 - `2021.517` is titled "At Parton Hall, Staffordshire"; no such hall is recorded.
