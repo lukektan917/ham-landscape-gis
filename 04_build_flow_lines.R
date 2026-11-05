@@ -16,8 +16,12 @@ library(tidyverse)
 library(sf)
 library(geosphere)
 
-people    <- read_csv("data/ham_people.csv",           show_col_types = FALSE)
-depicted  <- read_csv("data/objects_with_coords.csv",  show_col_types = FALSE)
+source("00_people_supplements.R")
+
+people    <- read_csv("data/ham_people.csv",           show_col_types = FALSE) |>
+  apply_birthplace_supplements()
+depicted  <- read_csv("data/objects_with_coords.csv",  show_col_types = FALSE) |>
+  mutate(specificity = as.integer(specificity))
 bp_coords <- read_csv("data/birthplace_coords.csv",    show_col_types = FALSE)
 
 # ── Primary artists only ──────────────────────────────────────────────────────
@@ -29,8 +33,8 @@ artists <- people |>
 # ── Join everything ───────────────────────────────────────────────────────────
 flow_flat <- artists |>
   left_join(
-    select(depicted, objectnumber, depicted_loc, latitude, longitude, 
-           specificity, title, dated, datebegin, dateend, medium, 
+    select(depicted, objectnumber, depicted_loc, latitude, longitude,
+           specificity, basis, title, dated, datebegin, dateend, medium,
            century, primaryimageurl, url),
     by = "objectnumber"
   ) |>
@@ -59,12 +63,14 @@ flow_flat <- flow_flat |>
 objects_sf <- flow_flat |>
   select(objectnumber, title, artist_name = name, nationality,
          culture, dated, datebegin, dateend, century, medium,
-         depicted_loc, dep_lat, dep_lon, distance_km, primaryimageurl, url) |>
+         depicted_loc, specificity, basis, dep_lat, dep_lon, distance_km,
+         primaryimageurl, url) |>
   st_as_sf(coords = c("dep_lon", "dep_lat"), crs = 4326)
 
 # ── LAYER 2: birthplace points ────────────────────────────────────────────────
 birthplaces_sf <- flow_flat |>
-  distinct(name, birthplace, birth_lat, birth_lon, nationality, culture, birth_year, death_year, displaydate) |>
+  distinct(name, birthplace, birthplace_source, birth_lat, birth_lon,
+           nationality, culture, birth_year, death_year, displaydate) |>
   filter(!is.na(birth_lat)) |>
   st_as_sf(coords = c("birth_lon", "birth_lat"), crs = 4326)
 
@@ -78,8 +84,9 @@ lines_geom <- flow_flat |>
 
 flow_sf <- st_as_sf(
   select(flow_flat, objectnumber, title, artist_name = name,
-         nationality, culture, birthplace, depicted_loc,
-         distance_km, datebegin, dateend, primaryimageurl, url),
+         nationality, culture, birthplace, birthplace_source, depicted_loc,
+         specificity, basis, distance_km, datebegin, dateend,
+         primaryimageurl, url),
   geometry = lines_geom$geometry
 )
 st_crs(flow_sf) <- 4326
@@ -95,4 +102,9 @@ cat(sprintf("Objects placed   : %d\n", nrow(objects_sf)))
 cat(sprintf("Birthplaces      : %d\n", nrow(birthplaces_sf)))
 cat(sprintf("Flow lines       : %d\n", nrow(flow_sf)))
 cat(sprintf("Median distance  : %.0f km\n", median(flow_flat$distance_km, na.rm = TRUE)))
+cat(sprintf("  of which from a supplied birthplace: %d\n",
+            sum(birthplaces_sf$birthplace_source == "supplement", na.rm = TRUE)))
+cat("\nPlaced objects by basis:\n")
+objects_sf |> st_drop_geometry() |> count(basis, sort = TRUE) |>
+  pwalk(\(basis, n) cat(sprintf("  %-15s %d\n", basis, n)))
 cat("\nExported 3 GeoJSON files to data/geojson/\n")

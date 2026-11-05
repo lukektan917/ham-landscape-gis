@@ -3,7 +3,7 @@
 Mapping where nineteenth-century landscape artists came *from* against where they
 chose to *look* — built from the Harvard Art Museums collection API.
 
-The pipeline in this repo produces three map layers for a set of 154 landscape
+The pipeline in this repo produces three map layers for a set of 153 landscape
 works (c. 1774–1915, mostly French, British, Swiss, Dutch and German artists):
 
 | Layer | What it is |
@@ -18,6 +18,7 @@ works (c. 1774–1915, mostly French, British, Swiss, Dutch and German artists):
 
 ```
 00_config.R              API key + the list of accession numbers to fetch
+00_people_supplements.R  birthplaces the HAM record leaves blank
       │
 01_fetch_ham.R           HAM API  →  data/ham_objects.csv
       │                            data/ham_people.csv
@@ -32,6 +33,9 @@ works (c. 1774–1915, mostly French, British, Swiss, Dutch and German artists):
                │
       04_build_flow_lines.R  →  data/geojson/*.geojson  →  ArcGIS Experience
 ```
+
+Both `00_*` files are sourced by the numbered steps rather than run on their
+own.
 
 Scripts are numbered in run order and each writes its outputs to `data/`, so any
 step can be rerun on its own. Steps 3 and 4 need no network access — the CSVs
@@ -65,34 +69,69 @@ HAM_APIKEY=your-key-here
 Most of the work in this project is not code. The HAM API says who made an object
 and when, but never where the view is — "Umbrian Landscape" could be anywhere in
 Umbria. So depicted locations are assigned by hand in `03_object_coords.R` from
-the title, the image and curatorial notes, and each one carries a `specificity`
-grade recording how much weight the point can bear:
+the title, the image and curatorial notes, and each one is graded on two axes.
+
+`specificity` records how tightly the view can be pinned:
 
 | `specificity` | Meaning | Count |
 | --- | --- | --- |
-| `2` | a named, identifiable view — a bridge, a harbour, a peak | 25 |
-| `1` | a settlement, valley or estate | 18 |
-| `0` | approximate; placed, but not a precise viewpoint | 21 |
+| `2` | a named, identifiable view — a bridge, a harbour, a peak | 27 |
+| `1` | a settlement, valley or estate | 23 |
+| `0` | approximate; placed, but not a precise viewpoint | 29 |
 
-A further 12 works name no locatable view at all. Their regional centroids sit in
+`basis` records what the placement rests on, so a reader can weigh it:
+
+| `basis` | Meaning | Count |
+| --- | --- | --- |
+| `title` | the HAM title names the place | 62 |
+| `alt_title` | a HAM alternative title names it | 6 |
+| `description` | the HAM description names it | 1 |
+| `creation_place` | the HAM `places` record names it | 1 |
+| `biography` | the artist's documented location at the work's date | 6 |
+| `curatorial` | argued from a related work or published source | 3 |
+
+The first four are backed by the museum's own record. The last two are
+inference, and the script refuses to let such a row be graded above
+`specificity` 1.
+
+A further 13 works name no locatable view at all. Their regional centroids sit in
 a `region_coords` table that is deliberately **not** joined into the output —
 mapping them would imply a precision the objects don't carry. Move a row up into
 `depicted_coords` once a view has been identified.
 
+A third table, `candidate_coords`, holds 8 works that have a plausible location
+in the literature this project could not confirm to the standard above — Zorn's
+bathers at Dalarö, Mauve's undated Laren subjects, Boudin's "1867(?)" beach.
+It is not joined either; it exists so the research isn't repeated.
+
 `04_build_flow_lines.R` uses only the primary artist (`displayorder == 1`) and
 only objects where both ends of the line are known, which is why the layers hold
-48 objects and 40 birthplaces rather than all 154. Median birthplace-to-subject
-distance across those lines is 267 km.
+77 objects and 61 birthplaces rather than all 153. The 2 placed objects that
+still fall out belong to the `NOT_FOUND` accessions, which have no artist at all.
+Median birthplace-to-subject distance across those lines is 312 km.
+
+`objects_points` and `flow_lines` both carry `specificity` and `basis`, so the
+map can filter or style by how firm a placement is.
+
+### Supplied birthplaces
+
+The API returns no birthplace for 7 of the artists, which silently cost the map
+their lines. `00_people_supplements.R` fills those in by hand, keyed on HAM's
+`personid` and carrying the source for each — Morisot at Bourges, Hugo at
+Besançon, Cozens at St Petersburg, and four more. 5 of the 61 birthplace points
+come from that table, and every one is marked `birthplace_source = "supplement"`
+in `birthplace_points` and `flow_lines` so a supplied origin is never mistaken
+for one the museum recorded.
 
 ## Data
 
 | File | Rows | Notes |
 | --- | --- | --- |
-| `data/ham_objects.csv` | 154 | one row per object; 149 resolved, 5 `NOT_FOUND` |
-| `data/ham_people.csv` | 155 | one row per person–object link, with parsed birth/death years |
-| `data/objects_with_coords.csv` | 154 | objects plus depicted location and `specificity` |
-| `data/birthplace_coords.csv` | 67 | geocoded via OSM Nominatim |
-| `data/deathplace_coords.csv` | 58 | geocoded via OSM Nominatim |
+| `data/ham_objects.csv` | 153 | one row per object; 148 resolved, 5 `NOT_FOUND` |
+| `data/ham_people.csv` | 154 | one row per person–object link, with parsed birth/death years |
+| `data/objects_with_coords.csv` | 153 | objects plus depicted location, `specificity` and `basis` |
+| `data/birthplace_coords.csv` | 72 | geocoded via OSM Nominatim; 72 resolved |
+| `data/deathplace_coords.csv` | 58 | geocoded via OSM Nominatim; 58 resolved |
 | `data/geojson/` | — | the three layers, EPSG:4326 |
 
 Object and artist metadata is © President and Fellows of Harvard College,
@@ -101,15 +140,29 @@ OpenStreetMap (ODbL).
 
 ### Known gaps
 
-- Five accession numbers return `NOT_FOUND` — non-standard prefixes (`TL…`,
-  `MS Typ…`, `5.2023…`) that the object endpoint doesn't resolve.
-- Three hand-entered coordinates don't match any fetched object and are reported
-  as a warning by `03_object_coords.R`: `2024.6`, `1898.8` (probably `2024.60`
-  and `1898.80`) and `2001.77v` (a verso, which has no accession record of its own).
+- 5 accession numbers return `NOT_FOUND` — non-standard prefixes (`TL…`,
+  `MS Typ…`) that the object endpoint doesn't resolve. Two of them
+  (`TL42852.4`, `TL42858.2`) still carry hand-assigned coordinates and reach the
+  map with no title or artist attached.
+- **The HAM API records a place for one object in 153.** The `places` field
+  (`Creation Place`) is populated only for `1943.296`. There is no systematic
+  place data to fall back on, which is why every other point is hand-assigned.
 - `active_dates` in `ham_people.csv` flags artists whose display date is an
   activity period rather than birth–death; treat their `birth_year` accordingly.
 - Nominatim resolves place names as written, so historical or superseded names
-  may land on the modern settlement of the same name.
+  may land on the modern settlement of the same name. `place_overrides` in
+  `02_geocode_places.R` rewrites the eleven HAM strings it could not parse at all.
+- `1943.515` ("Peasant of the Camargue", HAM's alternative title: "Portrait of
+  Patience Escalier") is a portrait, not a view. It is placed in the Camargue on
+  the sitter's identity rather than on anything the sheet depicts.
+- `8.2023` is a bound album of 30 drawings spanning Hampshire, Sussex and Kent.
+  It carries one point, which sits in the Solent and stands for the whole album.
+- `2021.517` is titled "At Parton Hall, Staffordshire"; no such hall is recorded.
+  The point is placed at Wrottesley Hall, but Patshull Hall, 5 km south, is the
+  likelier reading. Flagged rather than changed.
+- HAM gives John "Warwick" Smith's dates as `1749 - 1851`. He died in 1831, so
+  `death_year` for `personid` 28753 is twenty years out. Left as the API
+  returns it; `00_people_supplements.R` corrects only the birthplace.
 
 ## Licence
 
