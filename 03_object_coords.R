@@ -35,8 +35,26 @@
 
 library(tidyverse)
 
+source("00_catalogue_supplements.R")
+
 # ── Load objects from 01_fetch_ham.R ──────────────────────────────────────────
-objects_df <- read_csv("data/ham_objects.csv", show_col_types = FALSE)
+# Catalogue supplements fill the NOT_FOUND rows the API cannot describe; every
+# API-sourced field is left untouched. Adds `record_source`.
+objects_df <- read_csv("data/ham_objects.csv", show_col_types = FALSE) |>
+  apply_catalogue_objects()
+
+# ── Dates the exhibition catalogue supplies and the API does not ─────────────
+# The catalogue is NOT generally a better date source — where the two disagree
+# HAM is usually more precise, carrying full dates ("September 12, 1864") where
+# the catalogue prints only a year. This table is only for objects HAM leaves
+# undated (datebegin 0). See CATALOGUE.md.
+catalogue_dates <- tribble(
+  ~objectnumber, ~dated,     ~datebegin, ~dateend,
+  "2023.542",    "1773-77",  1773L,      1777L
+)
+
+objects_df <- objects_df |>
+  rows_update(catalogue_dates, by = "objectnumber", unmatched = "ignore")
 
 # ── Depicted locations ────────────────────────────────────────────────────────
 depicted_coords <- tribble(
@@ -82,6 +100,9 @@ depicted_coords <- tribble(
   "2001.77",   "Fountain Near the Hill of Montmartre",                                    "Butte Montmartre area, Paris, France",                         48.887,     2.343,  1L, "title",
   "2007.139",  "Entrance to the Baumannshöhle in the Harz Mountains",                     "Baumannshöhle, Rübeland, Harz Mountains, Germany",             51.755,    10.843,  1L, "title",
   "1943.281",  "Honfleur Harbor",                                                         "Honfleur harbour, Calvados, Normandy, France",                 49.419,     0.232,  1L, "title",
+  # Catalogue titles it "Tombelaine and the Mont St. Michel". Tombelaine is the
+  # islet 3 km north, so the sheet shows both from the bay rather than the Mount
+  # alone. Kept at the Mount: a view containing both does not pin a viewpoint.
   "1943.345",  "Mont St. Michel",                                                         "Mont-Saint-Michel, Normandy, France",                          48.636,    -1.512,  1L, "title",
   "2023.522",  "Panoramic View of Grindelwald with View of Finsteraarhorn and both Grindelwald Glaciers", "Grindelwald, Bernese Oberland, Switzerland",                   46.624,     8.041,  1L, "title",
   "2023.529",  "View of the City of Zürich from Present Day Seefeld",                     "Seefeld lakeside quarter, Zürich, Switzerland",                47.355,     8.551,  1L, "title",
@@ -96,7 +117,11 @@ depicted_coords <- tribble(
   "1943.517",  "Abbeville",                                                               "Abbeville, Somme, Hauts-de-France, France",                    50.106,     1.835,  2L, "title",
   "1977.173",  "Mont Sainte-Victoire",                                                    "Mont Sainte-Victoire, near Aix-en-Provence, France",           43.526,     5.561,  2L, "title",
   "1999.247",  "View Near Nemi",                                                          "Countryside near Lake Nemi, Lazio, Italy",                     41.703,    12.707,  2L, "title",
-  "TL42858.2", "The Cliffs of Varengeville in Full Sun",                                  "Varengeville-sur-Mer, Normandy, France",                       49.901,     0.980,  2L, "title",
+  # Placed here before the catalogue was read; the catalogue confirms the title
+  # and lender. `basis` corrected from "title" to "catalogue" — HAM holds no
+  # record for this loan, so the title naming the cliffs is the catalogue's,
+  # not the museum's. Coordinate regeocoded (was 49.901, 0.980 by hand).
+  "TL42858.2", "The Cliffs of Varengeville in Full Sun",                                  "Varengeville-sur-Mer, Seine-Maritime, France",                 49.905,     1.002,  2L, "catalogue",
   "2023.518",  "Study of a Wooded Hillside near Weesen",                                  "Weesen area, Walensee, Switzerland",                           47.133,     9.094,  2L, "title",
   "1943.533",  "Barns in Interlaken",                                                     "Interlaken, Bernese Oberland, Switzerland",                    46.686,     7.863,  2L, "title",
   "1959.113",  "View of Amalfi",                                                          "Amalfi, Amalfi Coast, Campania, Italy",                        40.634,    14.602,  2L, "title",
@@ -122,18 +147,31 @@ depicted_coords <- tribble(
   "2023.623",  "A Cornfield with Windmill and Spire seen under a Crescent Moon",          "Shoreham, Kent, England",                                      51.334,     0.179,  1L, "biography",
   # Sheet dated 24 June 1811; HAM cites Zschoche, Caspar David Friedrich im Harz. Placed on the Brocken as a range centroid
   "1985.51",   "Landscape Studies",                                                       "Harz Mountains, Germany",                                      51.799,    10.616,  0L, "curatorial",
-  # c. 1854, when Pissarro had returned to St Thomas; no view is named
-  "1974.161",  "Eclipse of the Sun",                                                      "Charlotte Amalie, St Thomas (then Danish West Indies)",        18.337,   -64.962,  0L, "biography",
-  # Subject of Gericault’s lithograph The Coal Waggon, published London, 1 Feb 1821
+  # Catalogue biography: "Géricault spent time in London, enamored by the local
+  # equestrian culture and its imagery." Subject of his lithograph The Coal
+  # Waggon, published London, 1 Feb 1821.
   "1943.364",  "Coal Wagon Hauled by Seven Horses",                                       "London, England",                                              51.516,    -0.092,  0L, "curatorial",
-  # c. 1851-52, Millet resident at Barbizon from 1849; no view named
+  # c. 1851-52. Catalogue biography: Millet "moved from Paris to the village of
+  # Barbizon, near the Forest of Fontainebleau, in 1849 and remained there for
+  # the rest of his life."
   "1978.32",   "The Month of August: The Gleaners",                                       "Plain of Chailly, near Barbizon, France",                      48.458,     2.615,  0L, "biography",
-  # c. 1852-56, Millet resident at Barbizon; no view named
+  # c. 1852-56; same catalogue biography as 1978.32
   "1972.312",  "Landscape with Sheep",                                                    "Barbizon, Seine-et-Marne, France",                             48.445,     2.606,  0L, "biography",
-  # 1881-82, Pissarro at Pontoise until late 1882; no view named
+  # 1881-82, Pissarro at Pontoise until late 1882; no view named. The catalogue
+  # biography does not mention Pontoise — this rests on the standard chronology.
   "1993.60",   "Two Peasant Women",                                                       "Pontoise, Val-d’Oise, France",                                 49.051,     2.101,  0L, "biography",
-  # c. 1800; Reinhart lived in Rome continuously from 1789
-  "1985.74",   "Artist Sketching beneath Spreading Trees",                                "Rome, Italy",                                                  41.893,    12.483,  0L, "biography"
+  # c. 1800. Catalogue biography: Reinhart "moved to Rome in 1789 ... a member of
+  # the international community of artists in Rome for almost six decades."
+  "1985.74",   "Artist Sketching beneath Spreading Trees",                                "Rome, Italy",                                                  41.893,    12.483,  0L, "biography",
+  # ── Works the HAM API cannot describe; records from 00_catalogue_supplements.R
+  # Unlike every row above, these three coordinates were GEOCODED (Nominatim,
+  # same source as the birthplaces) rather than entered by hand.
+  # Hugo's title is the house itself; the catalogue essay confirms the setting:
+  # "Hauteville House, his Guernsey residence, is in reality part of the densely
+  # built historic Saint Peter Port."
+  "MS Typ 481","Hauteville",                                                              "Hauteville House, Saint Peter Port, Guernsey",                 49.451,    -2.538,  2L, "catalogue",
+  # Catalogue title is simply "Montreux"; point is the town, not a view in it
+  "TL42858.1", "Montreux",                                                                "Montreux, Vaud, Switzerland",                                  46.431,     6.913,  1L, "catalogue"
 )
 
 # ── Region-level placements — not joined ──────────────────────────────────────
@@ -153,7 +191,6 @@ region_coords <- tribble(
   "1964.15.15",  "Mediterranean Landscape",                    "Mediterranean coast",                             43.500,      5.500, 0L,
   "1964.15.10",  "Mediterranean Landscape with Olive Trees",   "Mediterranean coast",                             43.500,      5.600, 0L,
   "2023.534",    "Street Scene in Italy",                      "Italy (unspecified)",                             41.900,     12.500, 0L,
-  "TL42858.1",   "TL42858.1",                                  "Montreux area, Lake Geneva (unverified)",         46.431,      6.909, 0L,
   # Both carry the HAM alternative title "Italian Landscape" and name no view.
   "1965.287",    "Study for \"Landscape with Fishermen\"",     "Italy (unspecified)",                             41.900,     12.500, 0L,
   "1943.469",    "Landscape with Cow, Three Figures, and Buildings", "Italy (unspecified)",                       41.900,     12.500, 0L
@@ -174,8 +211,19 @@ candidate_coords <- tribble(
   "1943.520",    "A Shepherdess with Her Flock",       "Laren, North Holland",            "Same as 1943.284 — no date narrow enough to choose between Mauve's two bases",
   "1943.341",    "Promenaders on the Beach",           "Trouville-sur-Mer, Calvados",     "Boudin's 1860s beach scenes are overwhelmingly Trouville/Deauville, but HAM dates this '1867(?)' and names no beach",
   "1926.33.142", "A Landscape with a Church Tower and a House", "Dedham Vale, Suffolk",   "Constable worked at East Bergholt in 1809 but also at Epsom and Malvern Hall; the title names no view",
-  "1943.536",    "Linen Bleachers",                    "Bavaria",                         "Menzel's summer travels in 1886 are documented, but nothing ties this sheet to one of them"
+  "1943.536",    "Linen Bleachers",                    "Bavaria",                         "Menzel's summer travels in 1886 are documented, but nothing ties this sheet to one of them",
+  # Demoted from `depicted_coords` after checking the exhibition catalogue.
+  "1974.161",    "Eclipse of the Sun",                 "Charlotte Amalie, St Thomas",     "Was placed on St Thomas as Pissarro's documented location c. 1854. The catalogue biography names no such interval — 'a studio with Fritz Melbye in Caracas, Venezuela (1852-54), before returning to France in 1855' — and HAM's date window is 1849-1859, which also covers Venezuela and France"
 )
+
+# ── Loans still unidentified — not joined ────────────────────────────────────
+# Of the five NOT_FOUND accessions, three are now described in
+# 00_catalogue_supplements.R and placed above. These two are not: no catalogue
+# work can be tied to either number. Every plate in the book is otherwise
+# accounted for, so they are probably works shown without a plate, or withdrawn
+# from the final checklist. HAM's exhibition checklist is the source that would
+# settle it.
+unidentified_loans <- c("TL42852.4", "TL42880")
 
 # ── Join by objectnumber ──────────────────────────────────────────────────────
 objects_with_coords <- objects_df |>

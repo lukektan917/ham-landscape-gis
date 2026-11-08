@@ -75,26 +75,29 @@ the title, the image and curatorial notes, and each one is graded on two axes.
 
 | `specificity` | Meaning | Count |
 | --- | --- | --- |
-| `2` | a named, identifiable view — a bridge, a harbour, a peak | 27 |
-| `1` | a settlement, valley or estate | 23 |
-| `0` | approximate; placed, but not a precise viewpoint | 29 |
+| `2` | a named, identifiable view — a bridge, a harbour, a peak | 28 |
+| `1` | a settlement, valley or estate | 24 |
+| `0` | approximate; placed, but not a precise viewpoint | 28 |
 
 `basis` records what the placement rests on, so a reader can weigh it:
 
 | `basis` | Meaning | Count |
 | --- | --- | --- |
-| `title` | the HAM title names the place | 63 |
+| `title` | the HAM title names the place | 62 |
 | `alt_title` | a HAM alternative title names it | 5 |
 | `description` | the HAM description names it | 1 |
 | `creation_place` | the HAM `places` record names it | 1 |
-| `biography` | the artist's documented location at the work's date | 6 |
+| `catalogue` | the exhibition catalogue names the place | 3 |
+| `biography` | the artist's documented location at the work's date | 5 |
 | `curatorial` | argued from a related work or published source | 3 |
 
-The first four are backed by the museum's own record. The last two are
-inference, and the script refuses to let such a row be graded above
-`specificity` 1.
+The first four are backed by the museum's own record. `catalogue` covers three
+works the HAM API holds no record for at all — a Houghton Library shelfmark and
+two loans — described from the exhibition catalogue in
+`00_catalogue_supplements.R`; see `CATALOGUE.md`. The last two are inference,
+and the script refuses to let such a row be graded above `specificity` 1.
 
-A further 13 works name no locatable view at all. Their regional centroids sit in
+A further 12 works name no locatable view at all. Their regional centroids sit in
 a `region_coords` table that is deliberately **not** joined into the output —
 mapping them would imply a precision the objects don't carry. Move a row up into
 `depicted_coords` once a view has been identified.
@@ -106,9 +109,15 @@ It is not joined either; it exists so the research isn't repeated.
 
 `04_build_flow_lines.R` uses only the primary artist (`displayorder == 1`) and
 only objects where both ends of the line are known, which is why the layers hold
-77 objects and 61 birthplaces rather than all 153. The 2 placed objects that
-still fall out belong to the `NOT_FOUND` accessions, which have no artist at all.
+79 objects and 63 birthplaces rather than all 153.
 Median birthplace-to-subject distance across those lines is 312 km.
+
+`birthplace_points` also carries `biography` and `biography_life`, the
+catalogue's prose account of each artist and its birth/death line. They sit on
+that layer rather than on the objects because they describe the person, not the
+work — one artist, one point, one biography. 58 of the 63 have one; the five
+without are artists the catalogue's Artist Biographies section does not cover,
+plus George Vicat Cole, whose entry the parser could not recover.
 
 `objects_points` and `flow_lines` both carry `specificity` and `basis`, so the
 map can filter or style by how firm a placement is.
@@ -130,7 +139,7 @@ Splitting both on `" | "` lines the types up with the titles. The separator is
 not `"; "` because a single title may contain a semicolon — 1962.42's
 alternative title is `La Montagne Sacrée; The Sacred Mountain`.
 
-44 of the 153 objects carry at least one, and 24 of the 77 placed ones do. By
+44 of the 153 objects carry at least one, and 24 of the 76 placed ones do. By
 type, across those 24:
 
 | `alt_title_type` | Count | What it is |

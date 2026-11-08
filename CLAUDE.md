@@ -99,14 +99,26 @@ Traps, all learned the hard way:
   survive a GeoJSON load and must be recalculated afterwards.
 - **Never enable "public data collection"** to get editing on a shared layer. It allows
   anonymous internet edits to a Harvard-hosted asset. Unshare → edit → re-share instead.
+- **A new text field defaults to 255 characters.** `biography` on the birthplace layer
+  runs to 949, and 58 of its 63 rows are over 255, so a field created at the default
+  silently truncates almost every one. Create `biography` with a length of at least
+  1000 and `biography_life` at 255 before loading — and remember appending cannot
+  create fields, so both must exist first or the column arrives empty.
 
-### Current state (2026-11-05)
+### Current state (2026-11-08)
 
-`objects_points_76` is **unshared with editing enabled, mid-migration**. It has the
-right 22-field schema (`alt_title` and `alt_title_type` added this session) but its 77
-rows contain duplicates — some accession numbers appear twice, so it holds fewer than
-77 distinct objects. The fix is to delete all rows, Add features from
-`data/geojson/objects_points.geojson` (77 features, 77 distinct, verified), then add a
-unique index on `objectnumber` to stop it recurring. `birthplace_points_76` and
-`flow_lines_76` have not been touched. All three need editing disabled and re-sharing
-when done.
+The pipeline now exports **79 objects, 63 birthplaces, 79 flow lines**, all three
+verified free of duplicate accession numbers. `data/geojson/` holds the current files
+under their committed names; the `*_116.geojson` copies beside them are stale renamed
+exports from an earlier upload and can go once ArcGIS is refreshed.
+
+ArcGIS has not been updated since the catalogue work. All three hosted layers are
+behind, and two things changed shape:
+
+- `birthplace_points` gained `biography` and `biography_life` — create both before
+  loading, at the lengths noted above.
+- `basis` has a new value, `catalogue`, on three objects. No new field, but any
+  renderer or filter keyed on `basis` needs the extra category.
+
+`objects_points_76` was last left unshared with editing enabled and duplicate rows.
+Rebuilding it from the current export clears that.
