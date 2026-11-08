@@ -56,6 +56,39 @@ catalogue_dates <- tribble(
 objects_df <- objects_df |>
   rows_update(catalogue_dates, by = "objectnumber", unmatched = "ignore")
 
+# ── A usable year for objects dated only by century ──────────────────────────
+# HAM encodes "no year" as datebegin 0, and 15 placed objects carry only a
+# century. A time slider built on datebegin drops them entirely, so this adds
+# `date_mid`: the real begin year where there is one, the century midpoint
+# where there is not. `date_is_approx` flags which is which, so an invented
+# year can always be told from a recorded one — and can be styled or filtered
+# differently on the map.
+#
+# The midpoints are a convention, not evidence: an 18th-19th century work is
+# placed at 1800 because that is the middle of the span HAM allows, not
+# because anything suggests 1800.
+century_midpoints <- tribble(
+  ~century,            ~mid_year,
+  "18th century",      1750L,
+  "18th-19th century", 1800L,
+  "19th century",      1850L,
+  "19th-20th century", 1900L,
+  "20th century",      1950L
+)
+
+objects_df <- objects_df |>
+  left_join(century_midpoints, by = "century") |>
+  mutate(
+    .has_year      = !is.na(datebegin) & datebegin != 0,
+    date_is_approx = !.has_year & !is.na(mid_year),
+    date_mid       = case_when(
+      .has_year      ~ as.integer(datebegin),
+      date_is_approx ~ mid_year,
+      TRUE           ~ NA_integer_
+    )
+  ) |>
+  select(-mid_year, -.has_year)
+
 # ── Depicted locations ────────────────────────────────────────────────────────
 depicted_coords <- tribble(
   ~objectnumber, ~title,                                                                    ~depicted_loc,                                               ~latitude,  ~longitude,  ~specificity, ~basis,

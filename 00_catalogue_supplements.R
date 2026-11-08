@@ -55,6 +55,24 @@ apply_catalogue_objects <- function(objects_df) {
                                    "catalogue", "ham"))
 }
 
+# ── Nationalities the HAM record leaves blank ────────────────────────────────
+# 04_build_flow_lines.R derives `nationality` from `culture`, so an artist with
+# no culture falls through to "Unknown" on the birthplace layer. Both of these
+# are stated plainly in the catalogue's Artist Biographies headers
+# ("Brondgeest, Albertus, Dutch (Amsterdam 1786–1849 Amsterdam)").
+culture_supplements <- tribble(
+  ~name,                 ~culture,
+  "Albertus Brondgeest", "Dutch",
+  "Francis Towne",       "British"
+)
+
+apply_culture_supplements <- function(people_df) {
+  people_df |>
+    left_join(culture_supplements, by = "name", suffix = c("", ".supp")) |>
+    mutate(culture = coalesce(culture, culture.supp)) |>
+    select(-culture.supp)
+}
+
 # Add the catalogue artists to the people table. These objectnumbers have no
 # people rows at all, so this is a bind, not an update.
 #

@@ -21,7 +21,8 @@ source("00_catalogue_supplements.R")
 
 people    <- read_csv("data/ham_people.csv",           show_col_types = FALSE) |>
   apply_birthplace_supplements() |>
-  apply_catalogue_people()
+  apply_catalogue_people() |>
+  apply_culture_supplements()
 
 # Artist biographies transcribed from the exhibition catalogue, joined onto the
 # birthplace layer by surname. 95 of the 100 primary artists have one. See
@@ -66,7 +67,8 @@ flow_flat <- artists |>
   left_join(
     select(depicted, objectnumber, depicted_loc, latitude, longitude,
            specificity, basis, title, alt_title, alt_title_type, dated,
-           datebegin, dateend, medium, century, primaryimageurl, url),
+           datebegin, dateend, date_mid, date_is_approx, medium, century,
+           primaryimageurl, url),
     by = "objectnumber"
   ) |>
   rename(dep_lat = latitude, dep_lon = longitude) |>
@@ -96,7 +98,8 @@ flow_flat <- flow_flat |>
 objects_sf <- flow_flat |>
   select(objectnumber, title, alt_title, alt_title_type,
          artist_name = name, nationality,
-         culture, dated, datebegin, dateend, century, medium,
+         culture, dated, datebegin, dateend, date_mid, date_is_approx,
+         century, medium,
          depicted_loc, specificity, basis, dep_lat, dep_lon, distance_km,
          primaryimageurl, url) |>
   st_as_sf(coords = c("dep_lon", "dep_lat"), crs = 4326)
@@ -141,7 +144,7 @@ flow_sf <- st_as_sf(
   select(flow_flat, objectnumber, title, artist_name = name,
          nationality, culture, birthplace, birthplace_source, depicted_loc,
          specificity, basis, distance_km, datebegin, dateend,
-         primaryimageurl, url),
+         date_mid, date_is_approx, primaryimageurl, url),
   geometry = lines_geom$geometry
 )
 st_crs(flow_sf) <- 4326
@@ -159,6 +162,14 @@ cat(sprintf("Flow lines       : %d\n", nrow(flow_sf)))
 cat(sprintf("Median distance  : %.0f km\n", median(flow_flat$distance_km, na.rm = TRUE)))
 cat(sprintf("With a biography : %d of %d birthplaces\n",
             sum(!is.na(birthplaces_sf$biography)), nrow(birthplaces_sf)))
+cat(sprintf("Dated            : %d exact, %d century midpoint, %d undated\n",
+            sum(!objects_sf$date_is_approx & !is.na(objects_sf$date_mid)),
+            sum(objects_sf$date_is_approx, na.rm = TRUE),
+            sum(is.na(objects_sf$date_mid))))
+unknown_nat <- birthplaces_sf |> filter(nationality == "Unknown")
+if (nrow(unknown_nat) > 0)
+  warning("Artists with no culture, so nationality 'Unknown': ",
+          paste(unknown_nat$name, collapse = ", "))
 cat(sprintf("  of which from a supplied birthplace: %d\n",
             sum(birthplaces_sf$birthplace_source == "supplement", na.rm = TRUE)))
 cat(sprintf("With alt. title  : %d\n",

@@ -119,6 +119,25 @@ work — one artist, one point, one biography. 58 of the 63 have one; the five
 without are artists the catalogue's Artist Biographies section does not cover,
 plus George Vicat Cole, whose entry the parser could not recover.
 
+### Dates on the map
+
+HAM encodes "no year" as `datebegin` 0, and 15 of the 79 placed objects are
+dated only to a century. A time slider built on `datebegin` drops them, so the
+object and line layers carry two more columns:
+
+| Column | Meaning |
+| --- | --- |
+| `date_mid` | the recorded begin year, or the century midpoint where there is none |
+| `date_is_approx` | `true` when `date_mid` is a midpoint rather than a record |
+
+Midpoints are 1750 / 1800 / 1850 / 1900 for the 18th, 18th–19th, 19th and
+19th–20th centuries. They are a convention, not evidence: an 18th–19th century
+work sits at 1800 because that is the middle of the span HAM allows, not
+because anything points to 1800. `date_is_approx` exists so an invented year
+can always be told from a recorded one, and styled or filtered apart.
+
+All 79 placed objects now carry a `date_mid`; recorded years run 1773–1909.
+
 `objects_points` and `flow_lines` both carry `specificity` and `basis`, so the
 map can filter or style by how firm a placement is.
 

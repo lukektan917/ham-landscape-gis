@@ -117,8 +117,23 @@ behind, and two things changed shape:
 
 - `birthplace_points` gained `biography` and `biography_life` — create both before
   loading, at the lengths noted above.
+- `objects_points` and `flow_lines` gained `date_mid` (Integer) and
+  `date_is_approx` (String or Integer — GeoJSON booleans land as whichever the
+  loader picks, so check after the first load).
 - `basis` has a new value, `catalogue`, on three objects. No new field, but any
   renderer or filter keyed on `basis` needs the extra category.
+
+`date_mid` is never null, which simplifies the `Date_DT` calculation to a single
+line with no guard:
+
+```
+Date(Floor($feature.date_mid), 0, 1, 12, 0, 0)
+```
+
+Month 0 is January and the 12 is noon — ArcGIS renders in UTC and applies a local
+mean time offset to pre-1900 dates, so a midnight 1 January displays as 31 December
+of the previous year. Filter on `date_is_approx` to show or hide the 15 objects
+whose year is a century midpoint rather than a record.
 
 `objects_points_76` was last left unshared with editing enabled and duplicate rows.
 Rebuilding it from the current export clears that.
