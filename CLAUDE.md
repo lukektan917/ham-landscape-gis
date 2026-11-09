@@ -76,10 +76,13 @@ are not obvious from reading it:
 
 ## ArcGIS Online deployment
 
-Three hosted feature layers in the `harvard-cga` org, owned by `lut688_Harvard_CGA`:
-`objects_points_76`, `birthplace_points_76`, `flow_lines_76`, consumed by a Web Map
-and a Web Experience. Item IDs are in the item URLs; they are not secrets, but the
-layers' sharing state is.
+Three hosted feature layers in the `harvard-cga` org, owned by `lut688_Harvard_CGA`,
+consumed by a Web Map and a Web Experience. Item IDs are in the item URLs; they are
+not secrets, but the layers' sharing state is.
+
+**`ARCGIS.md` is the procedure** — how to empty a layer with the REST API's
+`deleteFeatures`, what to create before refilling, and a record of what was
+actually run. What follows here is only the list of things that go wrong.
 
 Traps, all learned the hard way:
 
