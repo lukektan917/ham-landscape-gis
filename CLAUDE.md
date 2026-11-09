@@ -128,10 +128,10 @@ behind, and two things changed shape:
 - `objects_points` and `flow_lines` gained `date_mid` (Integer),
   `date_is_approx` (String or Integer — GeoJSON booleans land as whichever the
   loader picks, so check after the first load), plus, on `objects_points`
-  only, `trail` (Integer) and `trail_title` / `trail_label` (String, 100;
-  longest values 57 and 68). A trail belongs to a work, not to an artist —
-  Ruskin's sit in 3, 7 and 10 — so neither the birthplace nor the line layer
-  carries one.
+  only, `trail_label` (String, 100; longest value 68) — one field carrying
+  "Trail 07 — Landscapes of the Mind". A trail belongs to a work, not to an
+  artist — Ruskin's sit in 3, 7 and 10 — so neither the birthplace nor the line
+  layer carries one.
 - `basis` has a new value, `catalogue`, on three objects. No new field, but any
   renderer or filter keyed on `basis` needs the extra category.
 

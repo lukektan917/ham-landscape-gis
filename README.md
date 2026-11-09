@@ -158,15 +158,17 @@ line layers carry both:
 Carried on `objects_points` only — a trail is a property of a work, and the
 object layer is the one the map styles and filters by.
 
-| Column | Meaning |
-| --- | --- |
-| `trail` | 1–10 |
-| `trail_title` | e.g. "Landscapes of the Mind" |
-| `trail_label` | both in one: "Trail 07 — Landscapes of the Mind" |
+A single column, `trail_label`, carrying the number and the title together:
 
-`trail_label` is the field to style or filter by. Its number is zero-padded
-because ArcGIS lists filter values alphabetically with no way to reorder them,
-and unpadded "Trail 10" would sort between 1 and 2.
+```
+Trail 07 — Landscapes of the Mind
+```
+
+The number is zero-padded because ArcGIS lists filter values alphabetically
+with no way to reorder them, and unpadded "Trail 10" would sort between 1 and
+2. Padded, the ten sort correctly in a legend or a filter with no manual
+reordering. `data/catalogue_trails.csv` keeps the number and title as separate
+columns if anything needs them apart.
 
 Birthplaces and flow lines deliberately carry no trail. An artist is not in one
 trail — Ruskin's works sit in 3, 7 and 10, Turner's in 1, 6 and 7 — so a

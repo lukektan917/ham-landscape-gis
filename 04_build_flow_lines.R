@@ -70,7 +70,7 @@ flow_flat <- artists |>
     select(depicted, objectnumber, depicted_loc, latitude, longitude,
            specificity, basis, title, alt_title, alt_title_type, dated,
            datebegin, dateend, date_mid, date_is_approx, medium, century,
-           trail, trail_title, trail_label, primaryimageurl, url),
+           trail, trail_label, primaryimageurl, url),
     by = "objectnumber"
   ) |>
   rename(dep_lat = latitude, dep_lon = longitude) |>
@@ -101,7 +101,7 @@ objects_sf <- flow_flat |>
   select(objectnumber, title, alt_title, alt_title_type,
          artist_name = name, nationality,
          culture, dated, datebegin, dateend, date_mid, date_is_approx,
-         century, medium, trail, trail_title, trail_label,
+         century, medium, trail_label,
          depicted_loc, specificity, basis, dep_lat, dep_lon, distance_km,
          primaryimageurl, url) |>
   st_as_sf(coords = c("dep_lon", "dep_lat"), crs = 4326)
@@ -165,7 +165,7 @@ cat(sprintf("Median distance  : %.0f km\n", median(flow_flat$distance_km, na.rm 
 cat(sprintf("With a biography : %d of %d birthplaces\n",
             sum(!is.na(birthplaces_sf$biography)), nrow(birthplaces_sf)))
 cat(sprintf("With a trail     : %d of %d\n",
-            sum(!is.na(objects_sf$trail)), nrow(objects_sf)))
+            sum(!is.na(objects_sf$trail_label)), nrow(objects_sf)))
 cat(sprintf("Dated            : %d exact, %d century midpoint, %d undated\n",
             sum(!objects_sf$date_is_approx & !is.na(objects_sf$date_mid)),
             sum(objects_sf$date_is_approx, na.rm = TRUE),
