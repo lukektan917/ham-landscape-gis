@@ -119,7 +119,6 @@ depicted_coords <- tribble(
   "2023.543",  "The Ruins of Geiersberg Castle in Bohemia",                               "Kyšperk (Geiersburg) Castle, Krupka, Czechia",                 50.696,    13.890,  0L, "title",
   "1907.6",    "Stirling Castle",                                                         "Stirling Castle, Stirling, Scotland",                          56.124,    -3.947,  0L, "title",
   "1943.687",  "Brighton Beach, with a Horse Turning a Capstan",                          "Brighton Beach, East Sussex, England",                         50.820,    -0.138,  0L, "title",
-  "2021.517",  "At Parton Hall, Staffordshire",                                           "Wrottesley Hall, Staffordshire, England",                      52.613,    -2.223,  0L, "curatorial",
   "2023.488",  "Page's Farm, Easton Park, Essex",                                         "Page's Farm, Little Easton, Essex, England",                   51.874,     0.322,  0L, "title",
   "2023.489",  "Entrance into Easton Park from Dunmont",                                  "Easton Park, Great Dunmow, Essex, England",                    51.873,     0.362,  0L, "title",
   "2024.59",   "Evening View near the Thames in Lambeth, London",                         "Thames riverside, Lambeth, London, England",                   51.499,    -0.121,  0L, "title",
@@ -176,26 +175,6 @@ depicted_coords <- tribble(
   "1943.917",  "Great Oak",                                                               "Le Faÿ, Parnac, Indre, France",                                46.453,     1.442,  1L, "alt_title",
   # Only object in the set with a HAM places entry: "Europe, United Kingdom, England, Newcastle"; Homer resident at Cullercoats 1881-82
   "1943.296",  "Watching the Tempest",                                                    "Cullercoats, North Tyneside, England",                         55.035,    -1.434,  1L, "creation_place",
-  # Dated c. 1826-27, the years Palmer settled at Shoreham
-  "2023.623",  "A Cornfield with Windmill and Spire seen under a Crescent Moon",          "Shoreham, Kent, England",                                      51.334,     0.179,  1L, "biography",
-  # Sheet dated 24 June 1811; HAM cites Zschoche, Caspar David Friedrich im Harz. Placed on the Brocken as a range centroid
-  "1985.51",   "Landscape Studies",                                                       "Harz Mountains, Germany",                                      51.799,    10.616,  0L, "curatorial",
-  # Catalogue biography: "Géricault spent time in London, enamored by the local
-  # equestrian culture and its imagery." Subject of his lithograph The Coal
-  # Waggon, published London, 1 Feb 1821.
-  "1943.364",  "Coal Wagon Hauled by Seven Horses",                                       "London, England",                                              51.516,    -0.092,  0L, "curatorial",
-  # c. 1851-52. Catalogue biography: Millet "moved from Paris to the village of
-  # Barbizon, near the Forest of Fontainebleau, in 1849 and remained there for
-  # the rest of his life."
-  "1978.32",   "The Month of August: The Gleaners",                                       "Plain of Chailly, near Barbizon, France",                      48.458,     2.615,  0L, "biography",
-  # c. 1852-56; same catalogue biography as 1978.32
-  "1972.312",  "Landscape with Sheep",                                                    "Barbizon, Seine-et-Marne, France",                             48.445,     2.606,  0L, "biography",
-  # 1881-82, Pissarro at Pontoise until late 1882; no view named. The catalogue
-  # biography does not mention Pontoise — this rests on the standard chronology.
-  "1993.60",   "Two Peasant Women",                                                       "Pontoise, Val-d’Oise, France",                                 49.051,     2.101,  0L, "biography",
-  # c. 1800. Catalogue biography: Reinhart "moved to Rome in 1789 ... a member of
-  # the international community of artists in Rome for almost six decades."
-  "1985.74",   "Artist Sketching beneath Spreading Trees",                                "Rome, Italy",                                                  41.893,    12.483,  0L, "biography",
   # ── Works the HAM API cannot describe; records from 00_catalogue_supplements.R
   # Unlike every row above, these three coordinates were GEOCODED (Nominatim,
   # same source as the birthplaces) rather than entered by hand.
@@ -245,8 +224,25 @@ candidate_coords <- tribble(
   "1943.341",    "Promenaders on the Beach",           "Trouville-sur-Mer, Calvados",     "Boudin's 1860s beach scenes are overwhelmingly Trouville/Deauville, but HAM dates this '1867(?)' and names no beach",
   "1926.33.142", "A Landscape with a Church Tower and a House", "Dedham Vale, Suffolk",   "Constable worked at East Bergholt in 1809 but also at Epsom and Malvern Hall; the title names no view",
   "1943.536",    "Linen Bleachers",                    "Bavaria",                         "Menzel's summer travels in 1886 are documented, but nothing ties this sheet to one of them",
-  # Demoted from `depicted_coords` after checking the exhibition catalogue.
-  "1974.161",    "Eclipse of the Sun",                 "Charlotte Amalie, St Thomas",     "Was placed on St Thomas as Pissarro's documented location c. 1854. The catalogue biography names no such interval — 'a studio with Fritz Melbye in Caracas, Venezuela (1852-54), before returning to France in 1855' — and HAM's date window is 1849-1859, which also covers Venezuela and France"
+  # ── Demoted from `depicted_coords`: placements that rested on inference ─────
+  # Every row below was once mapped on `basis` "biography" or "curatorial" —
+  # the artist's documented whereabouts, or an argument from a related work.
+  # None rests on the object's own record saying where it looks.
+  #
+  # The exhibition catalogue corroborates where several of these artists were
+  # living, and that is worth keeping, but it is not the same claim: knowing
+  # Millet lived at Barbizon from 1849 does not establish that an undated sheet
+  # of his depicts Barbizon. The inference is unchanged by who vouches for the
+  # biography, so the whole class comes off the map.
+  "1974.161",    "Eclipse of the Sun",                 "Charlotte Amalie, St Thomas",     "Placed as Pissarro's documented location c. 1854. The catalogue names no such interval — 'a studio with Fritz Melbye in Caracas, Venezuela (1852-54), before returning to France in 1855' — and HAM's window of 1849-1859 also covers Venezuela and France",
+  "2023.623",    "A Cornfield with Windmill and Spire seen under a Crescent Moon", "Shoreham, Kent, England", "Dated c. 1826-27, the years Palmer settled at Shoreham; catalogue confirms the Shoreham circle. Still an inference from residence — the sheet names no view",
+  "1985.51",     "Landscape Studies",                  "Harz Mountains, Germany",         "Sheet dated 24 June 1811; HAM cites Zschoche, Caspar David Friedrich im Harz. The catalogue biography does not mention the Harz at all",
+  "1943.364",    "Coal Wagon Hauled by Seven Horses",  "London, England",                 "Subject of Géricault's lithograph The Coal Waggon, published London, 1 Feb 1821; catalogue confirms a London stay. Argued from a related print, not from this sheet",
+  "1978.32",     "The Month of August: The Gleaners",  "Plain of Chailly, near Barbizon", "c. 1851-52; catalogue has Millet at Barbizon 'for the rest of his life' from 1849. Residence, not a named view",
+  "1972.312",    "Landscape with Sheep",               "Barbizon, Seine-et-Marne, France","c. 1852-56; same reasoning as 1978.32",
+  "1993.60",     "Two Peasant Women",                  "Pontoise, Val-d'Oise, France",    "1881-82, Pissarro at Pontoise until late 1882. The catalogue biography does not mention Pontoise",
+  "1985.74",     "Artist Sketching beneath Spreading Trees", "Rome, Italy",               "c. 1800; catalogue has Reinhart in Rome from 1789 for nearly six decades. Residence, not a named view",
+  "2021.517",    "At Parton Hall, Staffordshire",      "Wrottesley Hall, Staffordshire",  "The title names Parton Hall, which no gazetteer records; Wrottesley was the identification argued from the sitter's family seat"
 )
 
 # ── Loans still unidentified — not joined ────────────────────────────────────

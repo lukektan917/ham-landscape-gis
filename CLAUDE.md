@@ -107,8 +107,12 @@ Traps, all learned the hard way:
 
 ### Current state (2026-11-08)
 
-The pipeline now exports **79 objects, 63 birthplaces, 79 flow lines**, all three
-verified free of duplicate accession numbers. `data/geojson/` holds the current files
+The pipeline now exports **71 objects, 58 birthplaces, 71 flow lines**, all three
+verified free of duplicate accession numbers. Nothing on the map rests on
+inference any more: `basis` `biography` and `curatorial` no longer appear, and
+those eight objects sit in `candidate_coords`. Median birthplace-to-subject
+distance rose from 312 km to 378 as a result — the inference-based placements
+were systematically short, because they put the work where the artist lived. `data/geojson/` holds the current files
 under their committed names; the `*_116.geojson` copies beside them are stale renamed
 exports from an earlier upload and can go once ArcGIS is refreshed.
 

@@ -76,8 +76,8 @@ the title, the image and curatorial notes, and each one is graded on two axes.
 | `specificity` | Meaning | Count |
 | --- | --- | --- |
 | `2` | a named, identifiable view — a bridge, a harbour, a peak | 28 |
-| `1` | a settlement, valley or estate | 24 |
-| `0` | approximate; placed, but not a precise viewpoint | 28 |
+| `1` | a settlement, valley or estate | 23 |
+| `0` | approximate; placed, but not a precise viewpoint | 21 |
 
 `basis` records what the placement rests on, so a reader can weigh it:
 
@@ -85,43 +85,49 @@ the title, the image and curatorial notes, and each one is graded on two axes.
 | --- | --- | --- |
 | `title` | the HAM title names the place | 62 |
 | `alt_title` | a HAM alternative title names it | 5 |
+| `catalogue` | the exhibition catalogue names the place | 3 |
 | `description` | the HAM description names it | 1 |
 | `creation_place` | the HAM `places` record names it | 1 |
-| `catalogue` | the exhibition catalogue names the place | 3 |
-| `biography` | the artist's documented location at the work's date | 5 |
-| `curatorial` | argued from a related work or published source | 3 |
 
-The first four are backed by the museum's own record. `catalogue` covers three
-works the HAM API holds no record for at all — a Houghton Library shelfmark and
-two loans — described from the exhibition catalogue in
-`00_catalogue_supplements.R`; see `CATALOGUE.md`. The last two are inference,
-and the script refuses to let such a row be graded above `specificity` 1.
+**Every mapped placement rests on a record that names the place.** Four of those
+bases are the museum's own; `catalogue` covers three works the HAM API holds no
+record for at all — a Houghton Library shelfmark and two loans — described from
+the exhibition catalogue in `00_catalogue_supplements.R`. See `CATALOGUE.md`.
+
+Nothing on the map rests on inference. Placements that once did carried
+`basis` `biography` (the artist's documented whereabouts at the work's date) or
+`curatorial` (argued from a related work). They are no longer mapped — not
+because the research was wrong, but because the claim is different in kind:
+knowing Millet lived at Barbizon from 1849 does not establish that an undated
+sheet of his depicts Barbizon. Those eight rows moved to `candidate_coords`
+with their reasoning intact.
 
 A further 12 works name no locatable view at all. Their regional centroids sit in
 a `region_coords` table that is deliberately **not** joined into the output —
 mapping them would imply a precision the objects don't carry. Move a row up into
 `depicted_coords` once a view has been identified.
 
-A third table, `candidate_coords`, holds 8 works that have a plausible location
-in the literature this project could not confirm to the standard above — Zorn's
-bathers at Dalarö, Mauve's undated Laren subjects, Boudin's "1867(?)" beach.
-It is not joined either; it exists so the research isn't repeated.
+A third table, `candidate_coords`, holds 17 works with a plausible location the
+project could not confirm to the standard above — Zorn's bathers at Dalarö,
+Mauve's undated Laren subjects, Boudin's "1867(?)" beach, and the eight
+inference-based placements described above. It is not joined either; it exists
+so the research isn't repeated.
 
 `04_build_flow_lines.R` uses only the primary artist (`displayorder == 1`) and
 only objects where both ends of the line are known, which is why the layers hold
-79 objects and 63 birthplaces rather than all 153.
-Median birthplace-to-subject distance across those lines is 312 km.
+71 objects and 58 birthplaces rather than all 153.
+Median birthplace-to-subject distance across those lines is 378 km.
 
 `birthplace_points` also carries `biography` and `biography_life`, the
 catalogue's prose account of each artist and its birth/death line. They sit on
 that layer rather than on the objects because they describe the person, not the
-work — one artist, one point, one biography. 58 of the 63 have one; the five
+work — one artist, one point, one biography. 53 of the 58 have one; the five
 without are artists the catalogue's Artist Biographies section does not cover,
 plus George Vicat Cole, whose entry the parser could not recover.
 
 ### Dates on the map
 
-HAM encodes "no year" as `datebegin` 0, and 15 of the 79 placed objects are
+HAM encodes "no year" as `datebegin` 0, and 15 of the 71 placed objects are
 dated only to a century. A time slider built on `datebegin` drops them, so the
 object and line layers carry two more columns:
 
@@ -136,7 +142,7 @@ work sits at 1800 because that is the middle of the span HAM allows, not
 because anything points to 1800. `date_is_approx` exists so an invented year
 can always be told from a recorded one, and styled or filtered apart.
 
-All 79 placed objects now carry a `date_mid`; recorded years run 1773–1909.
+All 71 placed objects now carry a `date_mid`; recorded years run 1773–1909.
 
 `objects_points` and `flow_lines` both carry `specificity` and `basis`, so the
 map can filter or style by how firm a placement is.
@@ -158,7 +164,7 @@ Splitting both on `" | "` lines the types up with the titles. The separator is
 not `"; "` because a single title may contain a semicolon — 1962.42's
 alternative title is `La Montagne Sacrée; The Sacred Mountain`.
 
-44 of the 153 objects carry at least one, and 24 of the 76 placed ones do. By
+44 of the 153 objects carry at least one, and 23 of the 71 placed ones do. By
 type, across those 24:
 
 | `alt_title_type` | Count | What it is |

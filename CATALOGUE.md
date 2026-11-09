@@ -185,7 +185,22 @@ in `people` — one per object. The birthplace layer collapses them to one point
 | The three catalogue works added to the map via `00_catalogue_supplements.R` | new file, `03`, `04` |
 | `biography` / `biography_life` added to the birthplace layer | `04_build_flow_lines.R` |
 
-Layer counts after the rebuild: **79** objects, **63** birthplaces, 79 flow
-lines (was 77 / 61 / 77 before any of this). Median birthplace-to-subject
-distance 312 km. `biography` drops from 6 placements to 5; `catalogue` adds 3.
-58 of the 63 birthplaces carry a biography.
+Layer counts after the rebuild: **71** objects, **58** birthplaces, 71 flow
+lines (was 77 / 61 / 77 before any of this). `catalogue` adds 3 placements.
+53 of the 58 birthplaces carry a biography.
+
+## Postscript: the inference-based placements came off the map
+
+The biographies were gathered to shore up the `biography` and `curatorial`
+placements, and they did — the catalogue confirms Géricault in London, Millet
+at Barbizon, Reinhart in Rome, Palmer at Shoreham. But confirming where an
+artist *lived* is a different claim from establishing what a sheet *depicts*,
+and the eight placements built on that reasoning have since been moved to
+`candidate_coords`. The research is recorded there; the points are off the map.
+
+The effect on the data is worth noting: median birthplace-to-subject distance
+rose from 312 km to **378 km**. Those placements were systematically short,
+because a work placed where its artist was living sits near that artist's
+birthplace more often than not — `1974.161` was the extreme case, a flow line
+of 0.0 km. Removing them took out a set of short lines the method had
+manufactured rather than found.
