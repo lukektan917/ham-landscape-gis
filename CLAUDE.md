@@ -125,9 +125,10 @@ behind, and two things changed shape:
 
 - `birthplace_points` gained `biography` and `biography_life` — create both before
   loading, at the lengths noted above.
-- `objects_points` and `flow_lines` gained `date_mid` (Integer) and
+- `objects_points` and `flow_lines` gained `date_mid` (Integer),
   `date_is_approx` (String or Integer — GeoJSON booleans land as whichever the
-  loader picks, so check after the first load).
+  loader picks, so check after the first load), and `trail` (Integer) plus
+  `trail_title` (String, 100; longest value is 57).
 - `basis` has a new value, `catalogue`, on three objects. No new field, but any
   renderer or filter keyed on `basis` needs the extra category.
 

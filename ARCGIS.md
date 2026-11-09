@@ -106,7 +106,11 @@ Fields created before loading:
 | Layer | Field | Type |
 | --- | --- | --- |
 | `objects_points_116` | `date_mid` | Integer |
+| `objects_points_116` | `trail` | Integer |
+| `objects_points_116` | `trail_title` | String, length 100 |
 | `flow_lines_116` | `date_mid` | Integer |
+| `flow_lines_116` | `trail` | Integer |
+| `flow_lines_116` | `trail_title` | String, length 100 |
 | `birthplace_points_116` | `biography` | String, length 1000 |
 | `birthplace_points_116` | `biography_life` | String, length 255 |
 

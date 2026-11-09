@@ -150,6 +150,34 @@ can always be told from a recorded one, and styled or filtered apart.
 
 All 74 placed objects now carry a `date_mid`; recorded years run 1773–1909.
 
+### Which trail each work hangs in
+
+The catalogue arranges its plates into ten themed "trails", and the object and
+line layers carry both:
+
+| Column | Meaning |
+| --- | --- |
+| `trail` | 1–10 |
+| `trail_title` | e.g. "Landscapes of the Mind" |
+
+All 74 placed objects have one. Every page of a plate section prints its trail
+in the running head, so `data/catalogue_trails.csv` is built by walking the
+catalogue text in order and tagging each accession with the heading that last
+preceded it — see `CATALOGUE.md`.
+
+| | Trail | Works |
+| --- | --- | --- |
+| 1 | Solitary Walks: The Example of Jean-Jacques Rousseau | 7 |
+| 2 | Materiality and Process | 9 |
+| 3 | The Education of an Artist | 9 |
+| 4 | Nature and the Pursuit of National Identity | 6 |
+| 5 | Travel and Home | 9 |
+| 6 | Through the Looking Glass(es): The Use of Optical Devices | 10 |
+| 7 | Landscapes of the Mind | 8 |
+| 8 | Labor and Land: Depicting the Dignity of Rural Work | 5 |
+| 9 | Escapism and Leisure | 4 |
+| 10 | Landscape and Environment | 7 |
+
 `objects_points` and `flow_lines` both carry `specificity` and `basis`, so the
 map can filter or style by how firm a placement is.
 

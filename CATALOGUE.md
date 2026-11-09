@@ -21,6 +21,7 @@ that belong to two different objects.
 | --- | --- | --- |
 | `data/catalogue_captions.csv` | 138 | plate captions: artist, title, date |
 | `data/catalogue_biographies.csv` | 97 | artist biographies with life dates and documented movements |
+| `data/catalogue_trails.csv` | 152 | which of the ten trails each work hangs in |
 
 138 of our 153 objects have a caption; 115 of those parsed cleanly (`parse_ok`).
 The remaining 23 carry artist-name fragments at the front of the title and should
@@ -129,6 +130,33 @@ That was wrong. Six were regex false positives — four are footnote markers
 (`in June 1857.⁴⁰` → "1857.40") and two are *other museums'* accessions quoted in
 an endnote (`2007.111.66` National Gallery of Art, `2008.613` the Metropolitan).
 The seventh, "2023.7", is a truncation of `5.2023.7`, which we already hold.
+
+## Trails
+
+The plate sections run from printed p. 85 to p. 283, divided into ten themed
+trails, and **every page of a plate section prints its trail in the running
+head** — "Trail 5 Travel and Home", "217 Landscapes of the Mind Trail 7". That
+makes attribution positional rather than structural: walk the extracted text in
+order, keep track of the last trail heading seen, and tag each accession with
+it. All 144 accessions in the book resolve this way.
+
+Four works needed assigning by hand, because their captions print no accession
+for the positional pass to tag: the Hugo (`MS Typ 481`, Trail 7), the Doré
+(`TL42858.1`, Trail 7), the Isabey (`TL42858.2`, Trail 3) and Towne's
+*Cataract of the Mothvaye* (`2026.65`, Trail 7). All four were read off the
+plate captions directly. `TL42852.4` has no trail because it has no identified
+work. All 74 placed objects carry one.
+
+### Plate numbers and essay cross-references: not done
+
+The essays reference works as "(cat. 33)" — 119 such references across 83
+distinct plates — so tying an essay to an object needs a plate-number-to-
+accession map. That map parses badly. Captions give their plate number at the
+start of a line, but adjacent captions for the same artist defeat it: Hugo's
+two sheets sit side by side as plates 91 and 92, and the parser gave `2021.51`
+plate 91 when it is 92. Coverage reached only 40 of 75 and the errors are
+silent, so the plate column was dropped rather than shipped. Attempting essay
+attribution on top of it would compound the error.
 
 ## Still unmined
 

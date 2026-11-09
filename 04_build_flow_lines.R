@@ -53,7 +53,9 @@ bios_sur <- bios_raw |>
 
 bios <- bind_rows(bios_full, bios_sur) |> distinct(join_key, .keep_all = TRUE)
 depicted  <- read_csv("data/objects_with_coords.csv",  show_col_types = FALSE) |>
-  mutate(specificity = as.integer(specificity))
+  mutate(specificity = as.integer(specificity),
+         trail       = as.integer(trail),
+         date_mid    = as.integer(date_mid))
 bp_coords <- read_csv("data/birthplace_coords.csv",    show_col_types = FALSE)
 
 # ── Primary artists only ──────────────────────────────────────────────────────
@@ -68,7 +70,7 @@ flow_flat <- artists |>
     select(depicted, objectnumber, depicted_loc, latitude, longitude,
            specificity, basis, title, alt_title, alt_title_type, dated,
            datebegin, dateend, date_mid, date_is_approx, medium, century,
-           primaryimageurl, url),
+           trail, trail_title, primaryimageurl, url),
     by = "objectnumber"
   ) |>
   rename(dep_lat = latitude, dep_lon = longitude) |>
@@ -99,7 +101,7 @@ objects_sf <- flow_flat |>
   select(objectnumber, title, alt_title, alt_title_type,
          artist_name = name, nationality,
          culture, dated, datebegin, dateend, date_mid, date_is_approx,
-         century, medium,
+         century, medium, trail, trail_title,
          depicted_loc, specificity, basis, dep_lat, dep_lon, distance_km,
          primaryimageurl, url) |>
   st_as_sf(coords = c("dep_lon", "dep_lat"), crs = 4326)
@@ -144,7 +146,7 @@ flow_sf <- st_as_sf(
   select(flow_flat, objectnumber, title, artist_name = name,
          nationality, culture, birthplace, birthplace_source, depicted_loc,
          specificity, basis, distance_km, datebegin, dateend,
-         date_mid, date_is_approx, primaryimageurl, url),
+         date_mid, date_is_approx, trail, trail_title, primaryimageurl, url),
   geometry = lines_geom$geometry
 )
 st_crs(flow_sf) <- 4326
@@ -162,6 +164,8 @@ cat(sprintf("Flow lines       : %d\n", nrow(flow_sf)))
 cat(sprintf("Median distance  : %.0f km\n", median(flow_flat$distance_km, na.rm = TRUE)))
 cat(sprintf("With a biography : %d of %d birthplaces\n",
             sum(!is.na(birthplaces_sf$biography)), nrow(birthplaces_sf)))
+cat(sprintf("With a trail     : %d of %d\n",
+            sum(!is.na(objects_sf$trail)), nrow(objects_sf)))
 cat(sprintf("Dated            : %d exact, %d century midpoint, %d undated\n",
             sum(!objects_sf$date_is_approx & !is.na(objects_sf$date_mid)),
             sum(objects_sf$date_is_approx, na.rm = TRUE),

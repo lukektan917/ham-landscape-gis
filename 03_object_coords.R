@@ -89,6 +89,17 @@ objects_df <- objects_df |>
   ) |>
   select(-mid_year, -.has_year)
 
+# ── Which trail of the exhibition each work hangs in ─────────────────────────
+# The catalogue arranges its plates into ten themed "trails", and every page of
+# a plate section carries its trail in the running head. `catalogue_trails.csv`
+# is built by walking the extracted text in order and tagging each accession
+# with the trail heading that most recently preceded it. 73 of the 75 placed
+# objects get one; see CATALOGUE.md.
+objects_df <- objects_df |>
+  left_join(read_csv("data/catalogue_trails.csv", show_col_types = FALSE),
+            by = "objectnumber") |>
+  mutate(trail = as.integer(trail))
+
 # ── Depicted locations ────────────────────────────────────────────────────────
 depicted_coords <- tribble(
   ~objectnumber, ~title,                                                                    ~depicted_loc,                                               ~latitude,  ~longitude,  ~specificity, ~basis,
