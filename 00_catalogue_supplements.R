@@ -66,10 +66,18 @@ culture_supplements <- tribble(
   "Francis Towne",       "British"
 )
 
+# HAM sometimes records a doubled culture — "British, English" on four rows.
+# The derived `nationality` already collapses that to "British", but `culture`
+# itself rides along into the layers and popups, so tidy it at source.
+culture_rewrites <- c("British, English" = "British")
+
 apply_culture_supplements <- function(people_df) {
   people_df |>
     left_join(culture_supplements, by = "name", suffix = c("", ".supp")) |>
-    mutate(culture = coalesce(culture, culture.supp)) |>
+    mutate(
+      culture = coalesce(culture, culture.supp),
+      culture = recode(culture, !!!as.list(culture_rewrites))
+    ) |>
     select(-culture.supp)
 }
 
