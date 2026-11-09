@@ -185,22 +185,28 @@ in `people` — one per object. The birthplace layer collapses them to one point
 | The three catalogue works added to the map via `00_catalogue_supplements.R` | new file, `03`, `04` |
 | `biography` / `biography_life` added to the birthplace layer | `04_build_flow_lines.R` |
 
-Layer counts after the rebuild: **71** objects, **58** birthplaces, 71 flow
+Layer counts after the rebuild: **74** objects, **61** birthplaces, 74 flow
 lines (was 77 / 61 / 77 before any of this). `catalogue` adds 3 placements.
-53 of the 58 birthplaces carry a biography.
+56 of the 61 birthplaces carry a biography.
 
-## Postscript: the inference-based placements came off the map
+## Postscript: the `biography` placements came off the map
 
 The biographies were gathered to shore up the `biography` and `curatorial`
 placements, and they did — the catalogue confirms Géricault in London, Millet
 at Barbizon, Reinhart in Rome, Palmer at Shoreham. But confirming where an
 artist *lived* is a different claim from establishing what a sheet *depicts*,
-and the eight placements built on that reasoning have since been moved to
+and the five placements that rested only on residence have since moved to
 `candidate_coords`. The research is recorded there; the points are off the map.
 
-The effect on the data is worth noting: median birthplace-to-subject distance
-rose from 312 km to **378 km**. Those placements were systematically short,
-because a work placed where its artist was living sits near that artist's
-birthplace more often than not — `1974.161` was the extreme case, a flow line
-of 0.0 km. Removing them took out a set of short lines the method had
-manufactured rather than found.
+`curatorial` placements stayed. They are inference too, but of another kind:
+each rests on a published identification of the specific sheet rather than on
+its artist's address — `1943.364` through Géricault's lithograph *The Coal
+Waggon*, `1985.51` through Zschoche on Friedrich in the Harz, `2021.517`
+through the sitter's family seat.
+
+One effect is worth recording. `1974.161` had a flow line of **0.0 km**: its
+depicted location had been derived from the artist's biography, and Pissarro's
+birthplace was the same place, so the line ran from Charlotte Amalie to
+Charlotte Amalie. A placement made from where an artist lived tends to sit near
+where that artist was born, which makes the whole class systematically short —
+lines the method manufactured rather than found.

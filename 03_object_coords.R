@@ -175,6 +175,20 @@ depicted_coords <- tribble(
   "1943.917",  "Great Oak",                                                               "Le Faÿ, Parnac, Indre, France",                                46.453,     1.442,  1L, "alt_title",
   # Only object in the set with a HAM places entry: "Europe, United Kingdom, England, Newcastle"; Homer resident at Cullercoats 1881-82
   "1943.296",  "Watching the Tempest",                                                    "Cullercoats, North Tyneside, England",                         55.035,    -1.434,  1L, "creation_place",
+  # ── Placements argued from a related work or a published source ────────────
+  # `curatorial` rows are inference, but of a different kind from `biography`:
+  # each rests on a specific identification someone has made and published about
+  # *this sheet*, not on where its artist happened to be living. Kept on the map
+  # for that reason; `biography` rows were not.
+  # Subject of Géricault's lithograph The Coal Waggon, published London,
+  # 1 Feb 1821. Catalogue biography confirms the London stay.
+  "1943.364",  "Coal Wagon Hauled by Seven Horses",                                       "London, England",                                              51.516,    -0.092,  0L, "curatorial",
+  # Sheet dated 24 June 1811; HAM cites Zschoche, Caspar David Friedrich im Harz.
+  # Placed on the Brocken as a range centroid.
+  "1985.51",   "Landscape Studies",                                                       "Harz Mountains, Germany",                                      51.799,    10.616,  0L, "curatorial",
+  # The title names Parton Hall, which no gazetteer records; Wrottesley is the
+  # published identification, from the sitter's family seat.
+  "2021.517",  "At Parton Hall, Staffordshire",                                           "Wrottesley Hall, Staffordshire, England",                      52.613,    -2.223,  0L, "curatorial",
   # ── Works the HAM API cannot describe; records from 00_catalogue_supplements.R
   # Unlike every row above, these three coordinates were GEOCODED (Nominatim,
   # same source as the birthplaces) rather than entered by hand.
@@ -224,25 +238,22 @@ candidate_coords <- tribble(
   "1943.341",    "Promenaders on the Beach",           "Trouville-sur-Mer, Calvados",     "Boudin's 1860s beach scenes are overwhelmingly Trouville/Deauville, but HAM dates this '1867(?)' and names no beach",
   "1926.33.142", "A Landscape with a Church Tower and a House", "Dedham Vale, Suffolk",   "Constable worked at East Bergholt in 1809 but also at Epsom and Malvern Hall; the title names no view",
   "1943.536",    "Linen Bleachers",                    "Bavaria",                         "Menzel's summer travels in 1886 are documented, but nothing ties this sheet to one of them",
-  # ── Demoted from `depicted_coords`: placements that rested on inference ─────
-  # Every row below was once mapped on `basis` "biography" or "curatorial" —
-  # the artist's documented whereabouts, or an argument from a related work.
-  # None rests on the object's own record saying where it looks.
+  # ── Demoted from `depicted_coords`: placed on the artist's whereabouts ─────
+  # Every row below was once mapped on `basis` "biography" — the artist's
+  # documented location at the work's date. None rests on the object's own
+  # record, or on any published identification of the sheet itself.
   #
   # The exhibition catalogue corroborates where several of these artists were
   # living, and that is worth keeping, but it is not the same claim: knowing
   # Millet lived at Barbizon from 1849 does not establish that an undated sheet
-  # of his depicts Barbizon. The inference is unchanged by who vouches for the
-  # biography, so the whole class comes off the map.
+  # of his depicts Barbizon. `curatorial` rows stayed on the map because they
+  # rest on a published identification of the specific work; these do not.
   "1974.161",    "Eclipse of the Sun",                 "Charlotte Amalie, St Thomas",     "Placed as Pissarro's documented location c. 1854. The catalogue names no such interval — 'a studio with Fritz Melbye in Caracas, Venezuela (1852-54), before returning to France in 1855' — and HAM's window of 1849-1859 also covers Venezuela and France",
   "2023.623",    "A Cornfield with Windmill and Spire seen under a Crescent Moon", "Shoreham, Kent, England", "Dated c. 1826-27, the years Palmer settled at Shoreham; catalogue confirms the Shoreham circle. Still an inference from residence — the sheet names no view",
-  "1985.51",     "Landscape Studies",                  "Harz Mountains, Germany",         "Sheet dated 24 June 1811; HAM cites Zschoche, Caspar David Friedrich im Harz. The catalogue biography does not mention the Harz at all",
-  "1943.364",    "Coal Wagon Hauled by Seven Horses",  "London, England",                 "Subject of Géricault's lithograph The Coal Waggon, published London, 1 Feb 1821; catalogue confirms a London stay. Argued from a related print, not from this sheet",
   "1978.32",     "The Month of August: The Gleaners",  "Plain of Chailly, near Barbizon", "c. 1851-52; catalogue has Millet at Barbizon 'for the rest of his life' from 1849. Residence, not a named view",
   "1972.312",    "Landscape with Sheep",               "Barbizon, Seine-et-Marne, France","c. 1852-56; same reasoning as 1978.32",
   "1993.60",     "Two Peasant Women",                  "Pontoise, Val-d'Oise, France",    "1881-82, Pissarro at Pontoise until late 1882. The catalogue biography does not mention Pontoise",
-  "1985.74",     "Artist Sketching beneath Spreading Trees", "Rome, Italy",               "c. 1800; catalogue has Reinhart in Rome from 1789 for nearly six decades. Residence, not a named view",
-  "2021.517",    "At Parton Hall, Staffordshire",      "Wrottesley Hall, Staffordshire",  "The title names Parton Hall, which no gazetteer records; Wrottesley was the identification argued from the sitter's family seat"
+  "1985.74",     "Artist Sketching beneath Spreading Trees", "Rome, Italy",               "c. 1800; catalogue has Reinhart in Rome from 1789 for nearly six decades. Residence, not a named view"
 )
 
 # ── Loans still unidentified — not joined ────────────────────────────────────
