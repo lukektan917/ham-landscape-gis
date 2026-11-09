@@ -98,7 +98,16 @@ objects_df <- objects_df |>
 objects_df <- objects_df |>
   left_join(read_csv("data/catalogue_trails.csv", show_col_types = FALSE),
             by = "objectnumber") |>
-  mutate(trail = as.integer(trail))
+  mutate(
+    trail = as.integer(trail),
+    # One field carrying both, for a legend or a filter dropdown. The number is
+    # zero-padded because ArcGIS lists filter values alphabetically with no way
+    # to reorder them, and unpadded "Trail 10" sorts between 1 and 2.
+    trail_label = if_else(
+      is.na(trail), NA_character_,
+      sprintf("Trail %02d — %s", trail, trail_title)
+    )
+  )
 
 # ── Depicted locations ────────────────────────────────────────────────────────
 depicted_coords <- tribble(

@@ -155,10 +155,20 @@ All 74 placed objects now carry a `date_mid`; recorded years run 1773–1909.
 The catalogue arranges its plates into ten themed "trails", and the object and
 line layers carry both:
 
-| Column | Meaning |
-| --- | --- |
-| `trail` | 1–10 |
-| `trail_title` | e.g. "Landscapes of the Mind" |
+| Column | Layer | Meaning |
+| --- | --- | --- |
+| `trail` | objects, lines | 1–10 |
+| `trail_title` | objects, lines | e.g. "Landscapes of the Mind" |
+| `trail_label` | objects, lines | both in one: "Trail 07 — Landscapes of the Mind" |
+| `trails` | birthplaces | every trail that artist appears in, e.g. "3; 7; 10" |
+
+`trail_label` is the field to style or filter by. Its number is zero-padded
+because ArcGIS lists filter values alphabetically with no way to reorder them,
+and unpadded "Trail 10" would sort between 1 and 2.
+
+Birthplaces carry `trails` rather than a single trail: three artists — Ruskin,
+Turner and Jongkind — have works in more than one, so no single value is
+correct for them. A "contains" filter still matches.
 
 All 74 placed objects have one. Every page of a plate section prints its trail
 in the running head, so `data/catalogue_trails.csv` is built by walking the
