@@ -110,15 +110,6 @@ objects_sf <- flow_flat |>
 # `biography` is the catalogue's prose account of the artist and `biography_life`
 # its birth/death line. They sit on this layer because they are about the person,
 # not the object — one artist, one point, one biography.
-# An artist's works can sit in several trails - Ruskin's in 3, 7 and 10 - so a
-# birthplace cannot carry one trail. `trails` is a delimited list of the trail
-# numbers that artist appears in, which a "contains" filter can still match.
-artist_trails <- flow_flat |>
-  filter(!is.na(trail)) |>
-  distinct(name, trail) |>
-  arrange(name, trail) |>
-  summarise(trails = paste(trail, collapse = "; "), .by = name)
-
 # One point per artist. Hugo has two people rows (a HAM sheet and a catalogue
 # loan), so dedupe on name, preferring the museum's own record.
 birthplaces_sf <- flow_flat |>
@@ -136,7 +127,6 @@ birthplaces_sf <- flow_flat |>
   left_join(bios, by = join_by(.sur == join_key)) |>
   rename(biography_s = biography, biography_life_s = biography_life) |>
   left_join(bios, by = join_by(.key_full == join_key)) |>
-  left_join(artist_trails, by = "name") |>
   mutate(
     biography      = coalesce(biography, biography_s),
     biography_life = coalesce(biography_life, biography_life_s)
@@ -156,8 +146,7 @@ flow_sf <- st_as_sf(
   select(flow_flat, objectnumber, title, artist_name = name,
          nationality, culture, birthplace, birthplace_source, depicted_loc,
          specificity, basis, distance_km, datebegin, dateend,
-         date_mid, date_is_approx, trail, trail_title, trail_label,
-         primaryimageurl, url),
+         date_mid, date_is_approx, primaryimageurl, url),
   geometry = lines_geom$geometry
 )
 st_crs(flow_sf) <- 4326
