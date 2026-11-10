@@ -191,7 +191,19 @@ depicted_coords <- tribble(
   "1943.279",  "The Blue Cart",                                                           "Plain of La Crau toward Montmajour, Arles, France",            43.695,     4.683,  1L, "alt_title",
   # HAM alternative title: "Children Playing in the Water at Scheveningen"
   "1934.201",  "Children of the Sea",                                                     "Scheveningen, The Hague, Netherlands",                         52.107,     4.274,  2L, "alt_title",
-  # HAM alternative title locates it "au Faÿ [Berri]"; Le Faÿ is now in the commune of Parnac
+  # CONTESTED — read this before trusting the coordinate on the next line.
+  # HAM's original-language title is "Grand chêne sur le bord d'un rivière au
+  # Faÿ [Berri]". The brackets are HAM's own: "Berri" is supplied, not part of
+  # the title. Parnac was then chosen off that gloss here, so the coordinate is
+  # an inference resting on an inference.
+  # The exhibition catalogue contradicts it: Rousseau rendered "a portrait of a
+  # famous tree in the Forest of Fontainebleau (cat. 17)" — Materiality and
+  # Process, p. 103. cat. 17 is this sheet, and that is 250 km away.
+  # Faÿ-lès-Nemours reconciles both readings: Nominatim returns its hierarchy as
+  # "Faÿ-lès-Nemours, Fontainebleau, Seine-et-Marne" (48.2319, 2.6760), it lies
+  # in the Loing valley, and the title puts the oak on a riverbank. Against it,
+  # the sheet is dated 1842, the year Rousseau is documented in the Berry.
+  # Left at Parnac pending a curatorial decision. See CATALOGUE.md.
   "1943.917",  "Great Oak",                                                               "Le Faÿ, Parnac, Indre, France",                                46.453,     1.442,  1L, "alt_title",
   # Only object in the set with a HAM places entry: "Europe, United Kingdom, England, Newcastle"; Homer resident at Cullercoats 1881-82
   "1943.296",  "Watching the Tempest",                                                    "Cullercoats, North Tyneside, England",                         55.035,    -1.434,  1L, "creation_place",

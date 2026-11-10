@@ -7,6 +7,13 @@
 # both ends of the line are known — so the layer counts are smaller than the
 # object count, by design.
 #
+# That filter also drops objects which HAVE a depicted coordinate but no
+# artist. `depicted_coords` places 75 objects; this layer carries 74. The
+# difference is TL42852.4, an unidentified loan whose people row is empty, so
+# there is no birthplace to anchor the other end. The object layer is built
+# from `flow_flat`, so it means "everything we could draw a line for", not
+# "everything we placed".
+#
 # Inputs : data/ham_objects.csv, data/ham_people.csv,
 #          data/objects_with_coords.csv, data/birthplace_coords.csv
 # Outputs: data/geojson/{objects_points,birthplace_points,flow_lines}.geojson

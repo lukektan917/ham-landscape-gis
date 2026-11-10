@@ -158,6 +158,32 @@ plate 91 when it is 92. Coverage reached only 40 of 75 and the errors are
 silent, so the plate column was dropped rather than shipped. Attempting essay
 attribution on top of it would compound the error.
 
+### The essays carry placements the captions do not
+
+`catalogue_captions.csv` holds caption blocks only. The essays also state where
+works were made, keyed to plate numbers, and nothing in this repo has ever read
+them. That gap put a wrong coordinate on the published map.
+
+`1943.917` Rousseau, *Great Oak*, is placed in the Indre on the strength of
+HAM's original-language title, "Grand chêne sur le bord d'un rivière au Faÿ
+[Berri]". Its caption on p. 117 adds nothing — artist, title, date, medium,
+credit. But the *Materiality and Process* essay, p. 103, has Rousseau rendering
+"a portrait of a famous tree in the Forest of Fontainebleau (cat. 17)". cat. 17
+is this sheet, and that is 250 km from where we put it.
+
+`[Berri]` is bracketed because HAM supplied it; the title itself says only "au
+Faÿ". **Faÿ-lès-Nemours** reconciles the two — Nominatim returns its hierarchy
+as "Faÿ-lès-Nemours, Fontainebleau, Seine-et-Marne" (48.2319, 2.6760), it lies
+in the Loing valley, and the title puts the oak on a riverbank. Against it: the
+sheet is dated 1842, the year Rousseau is documented travelling in the Berry.
+
+The row is left at Parnac, annotated in `03_object_coords.R`, pending a
+curatorial decision. The general lesson arrives from the opposite direction to
+the plate-number attempt above: the essays are evidence, the 119 `cat. NN`
+references are the index into them, and a placement graded `alt_title` — the
+second-strongest class we have — was still wrong, because the inference sat
+inside HAM's brackets rather than in our code.
+
 ## Still unmined
 
 - **Five essays**, printed pp. 11–84, and **ten trail descriptions** across
